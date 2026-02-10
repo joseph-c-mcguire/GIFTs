@@ -163,6 +163,68 @@ class simpleGUI(object):
 
 
 if __name__ == '__main__':
-
+    import sys
+    
+    if '--test' in sys.argv:
+        # Non-interactive test mode - processes sample files without GUI
+        print("Running demo1.py in test mode...")
+        
+        if platform.system() == 'Windows':
+            with open('aerodromes.win.db', 'rb') as _fh:
+                aerodromes = pickle.load(_fh)
+        else:
+            with open('aerodromes.db', 'rb') as _fh:
+                aerodromes = pickle.load(_fh)
+        
+        # Set up logging
+        logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+        logger = logging.getLogger()
+        
+        # Regular expressions for TAC file identification
+        encoders = []
+        encoders.append((re.compile(r'^S(A|P)[A-Z][A-Z]\d\d\s+[A-Z]{4}\s+\d{6}', re.MULTILINE),
+                        gifts.METAR.Encoder(aerodromes), 'METAR'))
+        encoders.append((re.compile(r'^F(C|T)[A-Z][A-Z]\d\d\s+[A-Z]{4}\s+\d{6}', re.MULTILINE),
+                        gifts.TAF.Encoder(aerodromes), 'TAF'))
+        encoders.append((re.compile(r'FK\w\w\d\d\s+[A-Z]{4}\s+\d{6}', re.MULTILINE), 
+                        gifts.TCA.Encoder(), 'TCA'))
+        encoders.append((re.compile(r'FV\w\w\d\d\s+[A-Z]{4}\s+\d{6}', re.MULTILINE), 
+                        gifts.VAA.Encoder(), 'VAA'))
+        
+        # Test with available sample files
+        test_files = ['metars.txt', 'tafs.txt', 'tca.txt', 'vaa.txt']
+        
+        for test_file in test_files:
+            if os.path.exists(test_file):
+                print(f"\nTesting {test_file}...")
+                with open(test_file, 'r') as f:
+                    tacText = f.read()
+                
+                encoder = result = None
+                encoder_type = None
+                for regexp, enc, enc_type in encoders:
+                    result = regexp.search(tacText)
+                    if result is not None:
+                        encoder = enc
+                        encoder_type = enc_type
+                        break
+                
+                if encoder is not None:
+                    try:
+                        bulletin = encoder.encode(tacText[result.start():])
+                        logger.info(f'{encoder_type}: Successfully encoded {test_file}')
+                        print(f"✓ {test_file} processed successfully")
+                    except Exception as e:
+                        logger.error(f'{encoder_type}: Error encoding {test_file}: {str(e)}')
+                        print(f"✗ {test_file} failed: {str(e)}")
+                else:
+                    logger.warning(f'No encoder match for {test_file}')
+                    print(f"? {test_file} - no matching encoder")
+            else:
+                print(f"Skipping {test_file} (not found)")
+        
+        print("\nTest mode complete!")
+        sys.exit(0)
+    
     gui = simpleGUI()
     gui.window.mainloop()

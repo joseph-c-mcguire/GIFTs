@@ -26,8 +26,8 @@ TranslationCentreDesignator = ''
 #
 # -----------------------------------------------------------------------------------
 # IWXXM release name
-_iwxxm = '2025-2'
-_release = '2025-2RC1'
+_iwxxm = '2023-1'
+_release = '2023-1'
 #
 IWXXM_URI = 'http://icao.int/iwxxm/%s' % _iwxxm
 IWXXM_URL = 'https://schemas.wmo.int/iwxxm/%s/iwxxm.xsd' % _release
