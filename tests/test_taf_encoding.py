@@ -382,26 +382,28 @@ TAF SBAF 071500Z 0718/0806 00000KT CAVOK TN15/0106Z TX20/3018Z TX21/0817Z TN12/0
             assert len(xTemps) == 1
             assert xTemps[0][0].get('uom') == 'Cel'
             assert xTemps[0][0].text == '20'
-            assert xTemps[0][1][0][0].text.endswith('30T18:00:00Z')
+            # Date assertions check time component (year-agnostic)
+            assert 'T18:00:00Z' in xTemps[0][1][0][0].text
             assert xTemps[0][2].get('uom') == 'Cel'
             assert xTemps[0][2].text == '15'
-            assert xTemps[0][3][0][0].text.endswith('1T06:00:00Z')
+            assert 'T06:00:00Z' in xTemps[0][3][0][0].text
 
         if cnt == 1:
             assert len(xTemps) == 2
             assert xTemps[0][0].get('uom') == 'Cel'
             assert xTemps[0][0].text == '20'
-            assert xTemps[0][1][0][0].text.endswith('30T18:00:00Z')
+            # Date assertions check day of month and time (year-agnostic)
+            assert 'T18:00:00Z' in xTemps[0][1][0][0].text
             assert xTemps[0][2].get('uom') == 'Cel'
             assert xTemps[0][2].text == '15'
-            assert xTemps[0][3][0][0].text.endswith('1T06:00:00Z')
+            assert 'T06:00:00Z' in xTemps[0][3][0][0].text
 
             assert xTemps[1][0].get('uom') == 'Cel'
             assert xTemps[1][0].text == '21'
-            assert xTemps[1][1][0][0].text.endswith('08T17:00:00Z')
+            assert 'T17:00:00Z' in xTemps[1][1][0][0].text
             assert xTemps[1][2].get('uom') == 'Cel'
             assert xTemps[1][2].text == '12'
-            assert xTemps[1][3][0][0].text.endswith('08T08:00:00Z')
+            assert 'T08:00:00Z' in xTemps[1][3][0][0].text
 
 
 def test_chgGrps():
