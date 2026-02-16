@@ -17,18 +17,37 @@ import os
 # For Meteorological or Space Weather Watch offices running this software, TRANSLATOR
 # should be set to False.
 #
-TRANSLATOR = False
+# UPDATED: Set to True for METAR to IWXXM Translation Centre (ICAO OPMET compliance)
+TRANSLATOR = True
 #
 # The full name and identifier of translation centre running this software
-#
-TranslationCentreName = ''
-TranslationCentreDesignator = ''
+# These values are set for NOAA MDL Translation Centre
+TranslationCentreName = 'NOAA Meteorological Development Laboratory'
+TranslationCentreDesignator = 'NOAA-MDL'
 #
 # -----------------------------------------------------------------------------------
 # IWXXM release name
-_iwxxm = '2023-1'
-_release = '2023-1'
-#
+# Default version (can be overridden dynamically)
+_iwxxm = '2025-2'
+_release = '2025-2'
+
+# Version can be set dynamically via set_iwxxm_version()
+IWXXM_VERSION = _iwxxm
+
+def set_iwxxm_version(version):
+    """
+    Set the IWXXM version dynamically.
+    
+    Args:
+        version (str): IWXXM version string (e.g., '2025-2', '2023-1', '2021-2')
+    """
+    global IWXXM_VERSION, IWXXM_URI, IWXXM_URL
+    version = str(version).strip()
+    IWXXM_VERSION = version
+    IWXXM_URI = 'http://icao.int/iwxxm/%s' % version
+    IWXXM_URL = 'https://schemas.wmo.int/iwxxm/%s/iwxxm.xsd' % version
+
+# Initialize with default version
 IWXXM_URI = 'http://icao.int/iwxxm/%s' % _iwxxm
 IWXXM_URL = 'https://schemas.wmo.int/iwxxm/%s/iwxxm.xsd' % _release
 #
@@ -75,7 +94,7 @@ srsDimension = '2'
 # If elevation of the aerodrome is provided, then provide the vertical datum it is
 # based on and its unit of measure
 #
-useElevation = False
+useElevation = True
 #
 # Vertical datum must be set correctly for the elevation used. Allowed values are:
 # 'EGM_96', 'AHD', 'NAVD88' or string matching the regular expression pattern:

@@ -32,10 +32,10 @@ from .common import Common
 
 class Annex3(Common.Base):
 
-    def __init__(self):
+    def __init__(self, version=None):
         #
-        # Initialize the base class
-        super(Annex3, self).__init__()
+        # Initialize the base class with optional version parameter
+        super(Annex3, self).__init__(version=version)
         #
         self._Logger = logging.getLogger(__name__)
         #
@@ -111,10 +111,22 @@ class Annex3(Common.Base):
 
             self.XMLDocument.set('translationCentreName', des.TranslationCentreName)
             self.XMLDocument.set('translationCentreDesignator', des.TranslationCentreDesignator)
-            self.XMLDocument.set('translationTime', self.decodedTAC['translationTime'])
-            self.XMLDocument.set('translatedBulletinReceptionTime',
-                                 self.decodedTAC['translatedBulletinReceptionTime'])
-            self.XMLDocument.set('translatedBulletinID', self.decodedTAC['translatedBulletinID'])
+            self.XMLDocument.set('translationTime', self.decodedTAC.get('translationTime', ''))
+            
+            # Handle missing translator metadata (provide sensible defaults if not set)
+            translated_bulletin_reception_time = self.decodedTAC.get('translatedBulletinReceptionTime')
+            if translated_bulletin_reception_time is None:
+                # If not provided, use translation time as fallback
+                translated_bulletin_reception_time = self.decodedTAC.get('translationTime', '')
+            self.XMLDocument.set('translatedBulletinReceptionTime', translated_bulletin_reception_time)
+            
+            translated_bulletin_id = self.decodedTAC.get('translatedBulletinID')
+            if translated_bulletin_id is None:
+                # Generate a default bulletin ID from ICAO code and timestamp
+                import datetime
+                ident_str = self.decodedTAC.get('ident', {}).get('str', 'UNKN')
+                translated_bulletin_id = f"MT{ident_str}{datetime.datetime.utcnow().strftime('%d%H%M')}"
+            self.XMLDocument.set('translatedBulletinID', translated_bulletin_id)
             #
             # If TAC translation failed in some way
             if 'err_msg' in self.decodedTAC:
