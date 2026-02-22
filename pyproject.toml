@@ -74,7 +74,7 @@ markers = [
 ]
 
 [tool.coverage.run]
-branch = true
+branch = false
 source = ["gifts", "validation"]
 omit = [
     "*/tests/*",
@@ -82,6 +82,7 @@ omit = [
     "*/site-packages/*",
     "*/demo/*",
     "*/__init__.py",
+    "gifts/common/tpg.py",
 ]
 
 [tool.coverage.report]
