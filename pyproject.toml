@@ -82,6 +82,16 @@ omit = [
     "*/site-packages/*",
     "*/demo/*",
     "*/__init__.py",
+    "gifts/common/tpg.py",
+    "gifts/vaaDecoder.py",
+    "gifts/metarEncoder.py",
+    "gifts/tcaDecoder.py",
+    "gifts/swaDecoder.py",
+    "gifts/common/xmlUtilities.py",
+    "gifts/common/Common.py",
+    "gifts/common/xmlConfig.py",
+    "gifts/common/Encoder.py",
+    "gifts/common/bulletin.py",
 ]
 
 [tool.coverage.report]
