@@ -1,9 +1,6 @@
 """Comprehensive tests for xmlUtilities module"""
 import pytest
-import math
 import uuid
-import cmath
-from unittest.mock import Mock, patch, MagicMock
 import xml.etree.ElementTree as ET
 import tempfile
 import os
@@ -37,8 +34,8 @@ class TestCardinalConversions:
     def test_all_cardinal_points_present(self):
         """Test that all cardinal and intercardinal points are present"""
         expected_points = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
-                          'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
-        
+                           'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
+
         for point in expected_points:
             assert point in deu.CardinalPtsToDegreesS
             assert point in deu.CardinalPtsToDegreesF
@@ -98,7 +95,7 @@ class TestGetUUID:
         """Test UUID generation with custom prefix"""
         result = deu.getUUID('custom_')
         assert result.startswith('custom_')
-        
+
         uuid_part = result.replace('custom_', '')
         try:
             uuid.UUID(uuid_part)
@@ -256,7 +253,7 @@ class TestCheckVisibility:
         # At 800 boundary
         result = deu.checkVisibility(800)
         assert result % 100 == 0
-        
+
         # At 5000 boundary
         result = deu.checkVisibility(5000)
         assert result % 1000 == 0
@@ -308,7 +305,7 @@ class TestCheckRVR:
         # At 400 boundary
         result = deu.checkRVR(400)
         assert result % 50 == 0
-        
+
         # At 800 boundary
         result = deu.checkRVR(800)
         assert result % 100 == 0
@@ -321,9 +318,9 @@ class TestFixDate:
         """Test that fix_date modifies the list in place and returns None"""
         import time
         current_time = time.localtime()
-        tms = [current_time.tm_year, current_time.tm_mon, current_time.tm_mday, 
+        tms = [current_time.tm_year, current_time.tm_mon, current_time.tm_mday,
                current_time.tm_hour, current_time.tm_min, 0, 0, 0, -1]
-        
+
         result = deu.fix_date(tms)
         assert result is None  # fix_date doesn't return anything
 
@@ -332,33 +329,31 @@ class TestFixDate:
         import time
         # Create a date from 3 days in the future
         future = time.time() + (4 * 86400)
-        future_time = time.localtime(future)
-        
+        time.localtime(future)
+
         # Use old month/year but future day
         tms = [2024, 6, 1, 12, 0, 0, 0, 0, -1]
         deu.fix_date(tms)
-        
+
         # Should have adjusted something or stayed same
         assert tms[0] >= 2024
 
     def test_fix_date_wraps_month_down(self):
         """Test month wrapping when going to previous month"""
-        import time
         # January date
         tms = [2024, 1, 15, 12, 0, 0, 0, 0, -1]
         # Note: this depends on current time, so we just verify it runs
         deu.fix_date(tms)
-        
+
         # Month should be between 1-12
         assert 1 <= tms[1] <= 12
 
     def test_fix_date_wraps_month_up(self):
         """Test month wrapping when going to next month"""
-        import time
         # December date
         tms = [2024, 12, 15, 12, 0, 0, 0, 0, -1]
         deu.fix_date(tms)
-        
+
         # Month should be between 1-12
         assert 1 <= tms[1] <= 12
 
@@ -520,7 +515,7 @@ class TestParseCodeRegistryTables:
             # Create a dummy RDF file
             dummy_file = os.path.join(tmpdir, 'WEATHER.rdf')
             ET.ElementTree(ET.Element('root')).write(dummy_file)
-            
+
             result = deu.parseCodeRegistryTables(tmpdir, ['WEATHER'])
             # WEATHER should be in result (nil won't match any files in temp dir)
             assert 'WEATHER' in result
@@ -532,7 +527,7 @@ class TestParseCodeRegistryTables:
             filename = os.path.join(tmpdir, 'EMPTY.rdf')
             with open(filename, 'w') as f:
                 f.write('<?xml version="1.0"?><root/>')
-            
+
             result = deu.parseCodeRegistryTables(tmpdir, ['EMPTY'])
             assert 'EMPTY' in result
 
@@ -544,7 +539,7 @@ class TestParseCodeRegistryTables:
                 filename = os.path.join(tmpdir, f'{code}.rdf')
                 with open(filename, 'w') as f:
                     f.write('<?xml version="1.0"?><root/>')
-            
+
             result = deu.parseCodeRegistryTables(tmpdir, ['CODE1', 'CODE2', 'CODE3'])
             assert 'CODE1' in result
             assert 'CODE2' in result
@@ -557,7 +552,7 @@ class TestParseCodeRegistryTables:
             dummy_file = os.path.join(tmpdir, 'WEATHER.rdf')
             with open(dummy_file, 'w') as f:
                 f.write('<?xml version="1.0"?><root/>')
-            
+
             # nil is already included
             result = deu.parseCodeRegistryTables(tmpdir, ['nil', 'WEATHER'])
             assert 'WEATHER' in result

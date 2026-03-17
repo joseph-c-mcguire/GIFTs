@@ -3,9 +3,6 @@ Final coverage push - targeting specific uncovered lines with high-value tests
 Focus on improving tpg.py (69.42%), vaaDecoder.py (77.35%), and metarEncoder.py (92.28%)
 """
 
-import pytest
-from unittest.mock import Mock, patch
-from datetime import datetime
 from gifts import vaaDecoder
 from gifts.common import xmlUtilities
 
@@ -16,7 +13,7 @@ class TestVAADecoderFinalRound:
     def test_vaa_all_section_combinations(self):
         """Test all combinations of VAA sections"""
         decoder = vaaDecoder.Decoder()
-        
+
         # Complex multi-section advisory
         complex_tac = """VA ADVISORY NR 001/24
 VOLCANO: Test Volcano 1234
@@ -37,7 +34,7 @@ NXT FCST: 0000Z"""
     def test_vaa_missing_multiple_sections(self):
         """Test VAA with various missing sections"""
         decoder = vaaDecoder.Decoder()
-        
+
         test_cases = [
             ("VA ADVISORY", "No other sections"),
             ("VOLCANO: TEST", "Only volcano"),
@@ -45,7 +42,7 @@ NXT FCST: 0000Z"""
             ("FCST VA:\nSFC/FL100", "Only forecast"),
             ("HEIGHT FL:", "Incomplete section"),
         ]
-        
+
         for tac, description in test_cases:
             result = decoder(tac)
             assert result is not None, f"Failed: {description}"
@@ -53,7 +50,7 @@ NXT FCST: 0000Z"""
     def test_vaa_error_recovery(self):
         """Test VAA decoder error recovery"""
         decoder = vaaDecoder.Decoder()
-        
+
         # Invalid formats that should be handled
         invalid_cases = [
             "INVALID\nLINE",
@@ -63,7 +60,7 @@ NXT FCST: 0000Z"""
             "   ",
             "\n\n\n",
         ]
-        
+
         for invalid in invalid_cases:
             try:
                 result = decoder(invalid)
@@ -75,12 +72,12 @@ NXT FCST: 0000Z"""
     def test_vaa_boundary_conditions(self):
         """Test VAA decoder with boundary conditions"""
         decoder = vaaDecoder.Decoder()
-        
+
         # Test with maximum nesting/complexity
         deep_tac = "VA ADVISORY\n" + "\n".join([f"AREA{i}: TEST{i}" for i in range(20)])
         result = decoder(deep_tac)
         assert result is not None
-        
+
         # Test with very long lines
         long_line = "VA ADVISORY\nREMARK: " + "X" * 500
         result = decoder(long_line)
@@ -99,7 +96,7 @@ class TestMetarEncoderCoverage:
     def test_metar_decoder_with_various_reports(self):
         """Test METAR module functions"""
         from gifts import metarDecoder
-        
+
         # metarDecoder module should exist
         assert hasattr(metarDecoder, '__name__')
         assert 'metar' in metarDecoder.__name__.lower()
@@ -107,7 +104,7 @@ class TestMetarEncoderCoverage:
     def test_metar_encoder_basic(self):
         """Test METAR encoder module"""
         from gifts import metarEncoder
-        
+
         # metarEncoder module should have functions
         assert hasattr(metarEncoder, '__name__')
 
@@ -118,7 +115,7 @@ class TestXMLUtilitiesFinalCoverage:
     def test_fix_date_with_current_time(self):
         """Test fix_date with current system time"""
         import time
-        
+
         # Use current time but manipulate it
         t = time.localtime()
         for month in range(1, 13):
@@ -132,13 +129,13 @@ class TestXMLUtilitiesFinalCoverage:
             (0.0, "N"),    # North
             (45.0, "NE"),  # Northeast
             (90.0, "E"),   # East
-            (135.0, "SE"), # Southeast
+            (135.0, "SE"),  # Southeast
             (180.0, "S"),  # South
-            (225.0, "SW"), # Southwest
+            (225.0, "SW"),  # Southwest
             (270.0, "W"),  # West
-            (315.0, "NW"), # Northwest
+            (315.0, "NW"),  # Northwest
         ]
-        
+
         for bearing, direction in directions:
             result = xmlUtilities.computeLatLon(45.0, 90.0, bearing, 100.0)
             assert isinstance(result, str), f"Failed for {direction}"
@@ -155,7 +152,7 @@ class TestXMLUtilitiesFinalCoverage:
             hex_points.append((x, y))
         area = xmlUtilities.computeArea(hex_points)
         assert isinstance(area, (int, float))
-        
+
         # Star shape
         star_points = []
         for i in range(10):
@@ -172,7 +169,7 @@ class TestXMLUtilitiesFinalCoverage:
         # Test feet to meters conversion
         result_feet = xmlUtilities.checkVisibility("10000", uom='[ft_i]')
         result_miles = xmlUtilities.checkVisibility("2", uom='[mi_i]')
-        
+
         assert result_feet is not None
         assert result_miles is not None
 
@@ -185,7 +182,7 @@ class TestXMLUtilitiesFinalCoverage:
             "5000",   # High
             "9999",   # Maximum
         ]
-        
+
         for value in extremes:
             result = xmlUtilities.checkRVR(value)
             assert result is not None
@@ -195,7 +192,7 @@ class TestXMLUtilitiesFinalCoverage:
         # Scientific notation shouldn't be considered valid numbers
         assert xmlUtilities.is_a_number("1e10") is False
         assert xmlUtilities.is_a_number("1.5e-3") is False
-        
+
         # But regular numbers should
         assert xmlUtilities.is_a_number("1000000") is True
 
@@ -212,7 +209,7 @@ class TestTAFEncoderCoverage:
     def test_taf_decoder_with_taf_string(self):
         """Test TAF modules have content"""
         from gifts import tafDecoder
-        
+
         assert hasattr(tafDecoder, '__name__')
         assert 'taf' in tafDecoder.__name__.lower()
 
@@ -253,7 +250,7 @@ class TestModuleImports:
     def test_all_decoder_imports(self):
         """Test all decoder modules can be imported"""
         from gifts import vaaDecoder, metarDecoder, tafDecoder, swaDecoder, tcaDecoder
-        
+
         assert vaaDecoder is not None
         assert metarDecoder is not None
         assert tafDecoder is not None
@@ -263,7 +260,7 @@ class TestModuleImports:
     def test_all_encoder_imports(self):
         """Test all encoder modules can be imported"""
         from gifts import vaaEncoder, metarEncoder, tafEncoder, swaEncoder, tcaEncoder
-        
+
         assert vaaEncoder is not None
         assert metarEncoder is not None
         assert tafEncoder is not None
@@ -273,7 +270,7 @@ class TestModuleImports:
     def test_common_module_imports(self):
         """Test common module imports"""
         from gifts.common import Encoder, Common, bulletin, tpg, xmlUtilities
-        
+
         assert Encoder is not None
         assert Common is not None
         assert bulletin is not None

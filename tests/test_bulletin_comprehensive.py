@@ -18,7 +18,7 @@ class TestBulletinBasics:
         """Test bulletin length"""
         b = Bulletin()
         assert len(b) == 0
-        
+
         # Add mock element
         elem = ET.Element('test')
         b._children.append(elem)
@@ -31,7 +31,7 @@ class TestBulletinBasics:
         elem2 = ET.Element('elem2')
         b._children.append(elem1)
         b._children.append(elem2)
-        
+
         assert b[0] is elem1
         assert b[1] is elem2
 
@@ -56,9 +56,9 @@ class TestBulletinAddition:
         """Test adding two empty bulletins"""
         b1 = Bulletin()
         b2 = Bulletin()
-        
+
         with pytest.raises(XMLError):
-            result = b1 + b2
+            b1 + b2
 
     def test_add_bulletins_with_kind(self):
         """Test adding bulletins with same kind"""
@@ -66,12 +66,12 @@ class TestBulletinAddition:
         b1._kind = 'METAR'
         elem1 = ET.Element('elem1')
         b1._children.append(elem1)
-        
+
         b2 = Bulletin()
         b2._kind = 'METAR'
         elem2 = ET.Element('elem2')
         b2._children.append(elem2)
-        
+
         result = b1 + b2
         assert len(result) == 2
         # _kind is not preserved in new bulletin unless __add__ logic sets it
@@ -84,25 +84,25 @@ class TestBulletinAddition:
         b1._kind = 'METAR'
         elem1 = ET.Element('elem1')
         b1._children.append(elem1)
-        
+
         b2 = Bulletin()
         b2._kind = 'TAF'
         elem2 = ET.Element('elem2')
         b2._children.append(elem2)
-        
+
         with pytest.raises(XMLError, match="same kind"):
-            result = b1 + b2
+            b1 + b2
 
     def test_add_with_first_empty(self):
         """Test adding when first bulletin is empty"""
         b1 = Bulletin()
         # First is empty, no _kind attribute
-        
+
         b2 = Bulletin()
         b2._kind = 'METAR'
         elem2 = ET.Element('elem2')
         b2._children.append(elem2)
-        
+
         result = b1 + b2
         assert len(result) == 1
         # __add__ sets _kind on self but not on the returned newBulletin
@@ -114,12 +114,12 @@ class TestBulletinAddition:
         b1._kind = 'METAR'  # Set _kind to avoid empty bulletin error
         elem1 = ET.Element('elem1')
         b1._children.append(elem1)
-        
+
         b2 = Bulletin()
         b2._kind = 'METAR'  # Set _kind to match
         elem2 = ET.Element('elem2')
         b2._children.append(elem2)
-        
+
         result = b1 + b2
         assert result[0] is elem1
         assert result[1] is elem2
@@ -131,7 +131,7 @@ class TestBulletinExport:
     def test_export_empty_bulletin_raises_error(self):
         """Test exporting empty bulletin raises error"""
         b = Bulletin()
-        
+
         with pytest.raises(XMLError, match="At least one"):
             b._export()
 
@@ -140,7 +140,7 @@ class TestBulletinExport:
         b = Bulletin()
         elem = ET.Element('test')
         b._children.append(elem)
-        
+
         with pytest.raises(XMLError, match="bulletinIdentifier needs to be set"):
             b._export()
 
@@ -150,7 +150,7 @@ class TestBulletinExport:
         b._bulletinId = 'INVALID_ID'
         elem = ET.Element('test')
         b._children.append(elem)
-        
+
         with pytest.raises(XMLError, match="does not conform"):
             b._export()
 
@@ -161,7 +161,7 @@ class TestBulletinExport:
         b._bulletinId = 'A_LCCC12KORD030000_C_KORD'
         elem = ET.Element('test')
         b._children.append(elem)
-        
+
         b._export()
         assert b.bulletin is not None
         assert b.bulletin.tag == 'MeteorologicalBulletin'
@@ -172,10 +172,10 @@ class TestBulletinExport:
         b._bulletinId = 'A_LCCC12KORD030000_C_KORD'
         elem = ET.Element('test')
         b._children.append(elem)
-        
+
         b._export()
         bulletin_elem = b.bulletin
-        
+
         # Check required namespaces
         assert bulletin_elem.get('xmlns') == 'http://def.wmo.int/collect/2014'
         assert bulletin_elem.get('xmlns:gml') == 'http://www.opengis.net/gml/3.2'
@@ -187,7 +187,7 @@ class TestBulletinExport:
         b._bulletinId = 'A_LCCC12KORD030000_C_KORD'
         elem = ET.Element('test')
         b._children.append(elem)
-        
+
         b._export()
         # Check if gml:id attribute exists using element attributes
         gml_id = None
@@ -206,9 +206,9 @@ class TestBulletinExport:
         b._bulletinId = 'A_LCCC12KORD030000_C_KORD'
         elem = ET.Element('test')
         b._children.append(elem)
-        
+
         b._export()
-        
+
         # Find bulletinIdentifier element
         bulletin_id_elem = b.bulletin.find('bulletinIdentifier')
         assert bulletin_id_elem is not None
@@ -221,9 +221,9 @@ class TestBulletinExport:
         b._bulletinId = 'A_LCCC12KORD030000_C_KORD'
         elem = ET.Element('test')
         b._children.append(elem)
-        
+
         b._export(compress=True)
-        
+
         bulletin_id_elem = b.bulletin.find('bulletinIdentifier')
         # Should have .gz extension in filename
         assert bulletin_id_elem.text.endswith('.gz')
@@ -234,9 +234,9 @@ class TestBulletinExport:
         b._bulletinId = 'A_LCCC12KORD030000_C_KORD'
         elem = ET.Element('test')
         b._children.append(elem)
-        
+
         b._export()
-        
+
         assert hasattr(b, '_internalBulletinId')
         assert b._internalBulletinId is not None
 
@@ -250,7 +250,7 @@ class TestBulletinString:
         b._bulletinId = 'A_LCCC12KORD030000_C_KORD'
         elem = ET.Element('test')
         b._children.append(elem)
-        
+
         result = str(b)
         assert isinstance(result, str)
         assert 'MeteorologicalBulletin' in result
@@ -262,7 +262,7 @@ class TestBulletinString:
         b._bulletinId = 'A_LCCC12KORD030000_C_KORD'
         elem = ET.Element('test')
         b._children.append(elem)
-        
+
         result = str(b)
         # Should be valid XML-like format
         assert '<' in result and '>' in result
@@ -273,7 +273,7 @@ class TestBulletinString:
         b._bulletinId = 'A_LCCC12KORD030000_C_KORD'
         elem = ET.Element('test')
         b._children.append(elem)
-        
+
         result = str(b)
         assert 'bulletinIdentifier' in result
         assert 'A_LCCC12KORD030000_C_KORD' in result
@@ -290,7 +290,7 @@ class TestBulletinWhiteSpace:
         child = ET.SubElement(elem, 'test')
         child.text = 'content'
         b._children.append(elem)
-        
+
         result = str(b)
         # Should have newlines and indentation
         assert '\n' in result
@@ -299,17 +299,17 @@ class TestBulletinWhiteSpace:
         """Test whitespace with multiple children"""
         b = Bulletin()
         b._bulletinId = 'A_LCCC12KORD030000_C_KORD'
-        
+
         elem1 = ET.Element('elem1')
         child1 = ET.SubElement(elem1, 'child1')
         child1.text = 'text1'
         b._children.append(elem1)
-        
+
         elem2 = ET.Element('elem2')
         child2 = ET.SubElement(elem2, 'child2')
         child2.text = 'text2'
         b._children.append(elem2)
-        
+
         result = str(b)
         assert result is not None
 
@@ -350,7 +350,7 @@ class TestBulletinXMLValidation:
             'A_LXYZ99EGLL010000_C_EGLL',
 
         ]
-        
+
         for valid_id in valid_ids:
             match = b.xmlFileNamePartA.match(valid_id)
             assert match is not None, f"Pattern should match {valid_id}"
@@ -364,7 +364,7 @@ class TestBulletinXMLValidation:
             'A_LCCC1',      # Too short
             'B_LCCC12KORD030000',  # Wrong prefix
         ]
-        
+
         for invalid_id in invalid_ids:
             match = b.xmlFileNamePartA.match(invalid_id)
             assert match is None, f"Pattern should not match {invalid_id}"
@@ -398,12 +398,12 @@ class TestBulletinEdgeCases:
         """Test bulletin with many children"""
         b = Bulletin()
         b._bulletinId = 'A_LCCC12KORD030000_C_KORD'
-        
+
         # Add 100 children
         for i in range(100):
             elem = ET.Element(f'elem_{i}')
             b._children.append(elem)
-        
+
         assert len(b) == 100
         assert b[0] is not None
         assert b[99] is not None
@@ -412,16 +412,16 @@ class TestBulletinEdgeCases:
         """Test bulletin with deeply nested elements"""
         b = Bulletin()
         b._bulletinId = 'A_LCCC12KORD030000_C_KORD'
-        
+
         # Create nested structure
         root = ET.Element('root')
         child = ET.SubElement(root, 'child')
         grandchild = ET.SubElement(child, 'grandchild')
         great_grandchild = ET.SubElement(grandchild, 'great_grandchild')
         great_grandchild.text = 'deep content'
-        
+
         b._children.append(root)
-        
+
         result = str(b)
         assert 'deep content' in result
 
@@ -431,10 +431,10 @@ class TestBulletinEdgeCases:
         b._bulletinId = 'A_LCCC12KORD030000_C_KORD'
         elem = ET.Element('test')
         b._children.append(elem)
-        
+
         # Create string (which calls _export internally)
-        result = str(b)
-        
+        str(b)
+
         # bulletin should be cleared
         assert b.bulletin is None
 
@@ -444,16 +444,16 @@ class TestBulletinEdgeCases:
         b._bulletinId = 'A_LCCC12KORD030000_C_KORD'
         elem = ET.Element('test')
         b._children.append(elem)
-        
+
         # First export
         str_result1 = str(b)
         assert str_result1 is not None
-        
+
         # Modify bulletin id
         b._bulletinId = 'A_LYYY22KJFK050000_C_KJFK'
         elem2 = ET.Element('test2')
         b._children.append(elem2)
-        
+
         # Second export
         str_result2 = str(b)
         assert str_result2 is not None
@@ -469,9 +469,9 @@ class TestBulletinSchemaLocation:
         b._bulletinId = 'A_LCCC12KORD030000_C_KORD'
         elem = ET.Element('test')
         b._children.append(elem)
-        
+
         b._export()
-        
+
         # Just verify export creates a valid bulletin structure
         assert b.bulletin is not None
         assert isinstance(b.bulletin, ET.Element)

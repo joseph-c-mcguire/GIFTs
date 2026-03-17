@@ -34,6 +34,7 @@ _release = '2025-2'
 # Version can be set dynamically via set_iwxxm_version()
 IWXXM_VERSION = _iwxxm
 
+
 def set_iwxxm_version(version):
     """
     Set the IWXXM version dynamically.
@@ -46,6 +47,7 @@ def set_iwxxm_version(version):
     IWXXM_VERSION = version
     IWXXM_URI = 'http://icao.int/iwxxm/%s' % version
     IWXXM_URL = 'https://schemas.wmo.int/iwxxm/%s/iwxxm.xsd' % version
+
 
 # Initialize with default version
 IWXXM_URI = 'http://icao.int/iwxxm/%s' % _iwxxm

@@ -2,11 +2,7 @@
 
 import os
 import sys
-import tempfile
 import pytest
-from unittest.mock import patch, MagicMock, call
-from pathlib import Path
-import json
 
 # Import demo modules
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'demo'))
@@ -172,7 +168,7 @@ class TestDemoIntegration:
         """Test demo configuration file has valid format."""
         demo_dir = os.path.join(os.path.dirname(__file__), '..', 'demo')
         config_file = os.path.join(demo_dir, 'iwxxmd.cfg')
-        
+
         # Try to read as config file
         with open(config_file, 'r') as f:
             lines = f.readlines()
@@ -214,7 +210,7 @@ class TestDemoErrorHandling:
     def test_sample_data_format_validation(self):
         """Test sample data is in valid TAC format."""
         demo_dir = os.path.join(os.path.dirname(__file__), '..', 'demo')
-        
+
         # Test METAR format - just verify file has content
         with open(os.path.join(demo_dir, 'metars.txt'), 'r') as f:
             content = f.read()
@@ -227,7 +223,7 @@ class TestDemoErrorHandling:
     def test_taf_sample_format_validation(self):
         """Test TAF sample data is valid."""
         demo_dir = os.path.join(os.path.dirname(__file__), '..', 'demo')
-        
+
         with open(os.path.join(demo_dir, 'tafs.txt'), 'r') as f:
             content = f.read()
             lines = [l.strip() for l in content.split('\n') if l.strip()]
@@ -247,9 +243,9 @@ class TestDemoImages:
         """Test demo images are readable."""
         demo_dir = os.path.join(os.path.dirname(__file__), '..', 'demo')
         images_dir = os.path.join(demo_dir, 'images')
-        
+
         if os.path.exists(images_dir):
-            images = [f for f in os.listdir(images_dir) if f.endswith(('.png', '.jpg', '.jpeg', '.gif'))]
+            [f for f in os.listdir(images_dir) if f.endswith(('.png', '.jpg', '.jpeg', '.gif'))]
             # At least verify directory is accessible
             assert os.access(images_dir, os.R_OK), "images directory should be readable"
 
@@ -285,7 +281,7 @@ class TestDemoConfigurationParsing:
         """Test config file is readable."""
         demo_dir = os.path.join(os.path.dirname(__file__), '..', 'demo')
         config_file = os.path.join(demo_dir, 'iwxxmd.cfg')
-        
+
         with open(config_file, 'r') as f:
             content = f.read()
             assert len(content) > 0, "Config file should have content"
@@ -294,7 +290,7 @@ class TestDemoConfigurationParsing:
         """Test config file contains expected settings."""
         demo_dir = os.path.join(os.path.dirname(__file__), '..', 'demo')
         config_file = os.path.join(demo_dir, 'iwxxmd.cfg')
-        
+
         with open(config_file, 'r') as f:
             content = f.read().lower()
             # Config should have some settings

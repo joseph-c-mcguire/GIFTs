@@ -3,8 +3,6 @@ Targeted tests for reaching 95% coverage - Round 2
 Focus on tpg.py (69.42%) and vaaDecoder.py (77.35%)
 """
 
-import pytest
-from unittest.mock import Mock, MagicMock, patch
 import time
 from gifts import vaaDecoder
 from gifts.common import xmlUtilities
@@ -16,7 +14,7 @@ class TestVAADecoderTargeted:
     def test_vaa_decoder_error_path_175(self):
         """Test line 175 error path"""
         decoder = vaaDecoder.Decoder()
-        # Phenomenon without description  
+        # Phenomenon without description
         result = decoder("VOLCANO:")
         assert isinstance(result, dict) or result is None
 
@@ -206,15 +204,15 @@ class TestXMLUtilitiesTargeted:
         # Test bearing 0 (north)
         result = xmlUtilities.computeLatLon(45.0, 90.0, 0.0, 100.0)
         assert isinstance(result, str)
-        
+
         # Test bearing 90 (east)
         result = xmlUtilities.computeLatLon(45.0, 90.0, 90.0, 100.0)
         assert isinstance(result, str)
-        
+
         # Test bearing 180 (south)
         result = xmlUtilities.computeLatLon(45.0, 90.0, 180.0, 100.0)
         assert isinstance(result, str)
-        
+
         # Test bearing 270 (west)
         result = xmlUtilities.computeLatLon(45.0, 90.0, 270.0, 100.0)
         assert isinstance(result, str)
@@ -224,8 +222,8 @@ class TestXMLUtilitiesTargeted:
         # Test negative wrapping
         result = xmlUtilities.computeLatLon(0.0, -170.0, 270.0, 1000.0)
         assert isinstance(result, str)
-        
-        # Test positive wrapping  
+
+        # Test positive wrapping
         result = xmlUtilities.computeLatLon(0.0, 170.0, 90.0, 1000.0)
         assert isinstance(result, str)
 
@@ -247,7 +245,7 @@ class TestXMLUtilitiesTargeted:
         # Below 800 (mod 50)
         result = xmlUtilities.checkVisibility("750")
         assert result is not None
-        
+
         # At 800 (mod 100)
         result = xmlUtilities.checkVisibility("800")
         assert result is not None
@@ -257,7 +255,7 @@ class TestXMLUtilitiesTargeted:
         # Below 5000 (mod 100)
         result = xmlUtilities.checkVisibility("4500")
         assert result is not None
-        
+
         # At 5000 (mod 1000)
         result = xmlUtilities.checkVisibility("5000")
         assert result is not None
@@ -267,7 +265,7 @@ class TestXMLUtilitiesTargeted:
         # Below 9999 (mod 1000)
         result = xmlUtilities.checkVisibility("8500")
         assert result is not None
-        
+
         # Above 9999 (returns 10000)
         result = xmlUtilities.checkVisibility("15000")
         assert result == 10000 or result == "10000"
@@ -277,7 +275,7 @@ class TestXMLUtilitiesTargeted:
         # Below 400 (mod 25)
         result = xmlUtilities.checkRVR("300")
         assert result is not None
-        
+
         # At 400 (mod 50)
         result = xmlUtilities.checkRVR("400")
         assert result is not None
@@ -287,7 +285,7 @@ class TestXMLUtilitiesTargeted:
         # At 800 (mod 50)
         result = xmlUtilities.checkRVR("800")
         assert result is not None
-        
+
         # Above 800 (mod 100)
         result = xmlUtilities.checkRVR("900")
         assert result is not None
@@ -305,7 +303,7 @@ class TestXMLUtilitiesTargeted:
         uuid1 = xmlUtilities.getUUID(prefix='')
         uuid2 = xmlUtilities.getUUID(prefix='test_')
         uuid3 = xmlUtilities.getUUID(prefix='prefix.')
-        
+
         assert len(uuid1) > 0
         assert uuid2.startswith('test_')
         assert uuid3.startswith('prefix.')
@@ -313,7 +311,7 @@ class TestXMLUtilitiesTargeted:
     def test_find_index_various_cases(self):
         """Test findIndex with various cases"""
         arr = ['a', 'b', 'c', 'd']
-        
+
         # findIndex may not exist, test alternatives
         if hasattr(xmlUtilities, 'findIndex'):
             assert xmlUtilities.findIndex(arr, 'a') == 0
@@ -333,7 +331,7 @@ class TestEncoderTargeted:
         """Test encoder with different TAC patterns"""
         from gifts.common.Encoder import Encoder
         encoder = Encoder()
-        
+
         # Various encoding attempts to trigger different paths
         try:
             # These may fail but should exercise code paths
@@ -379,7 +377,7 @@ class TestMetarEncoderTargeted:
     def test_metar_encoding_with_string(self):
         """Test METAR encoder with various weather conditions"""
         from gifts import metarEncoder
-        
+
         # metarEncoder module should have encoding functions
         assert hasattr(metarEncoder, '__name__')
         assert metarEncoder.__name__ == 'gifts.metarEncoder'
@@ -391,11 +389,11 @@ class TestCommonModuleTargeted:
     def test_common_module_functions(self):
         """Test Common module functions"""
         from gifts.common import Common
-        
+
         # Test module is importable and has content
         assert Common is not None
         assert hasattr(Common, '__name__')
-        
+
         # Check for available functions
         if hasattr(Common, 'issuedByCountry'):
             result = Common.issuedByCountry()

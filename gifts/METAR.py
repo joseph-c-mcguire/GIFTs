@@ -24,6 +24,8 @@ from .common import Encoder as E
 #
 # Contact Info: Mark.Oberfield@gmail.com
 #
+
+
 class Encoder(E.Encoder):
     """Accepts Meteorological Aerodrome Report Traditional Alphanumeric Code forms based on Annex 3 and generates
        equivalent IWXXM form

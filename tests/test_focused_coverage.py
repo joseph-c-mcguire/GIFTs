@@ -2,13 +2,11 @@
 Focused coverage improvement tests targeting specific uncovered lines
 """
 
-import pytest
-from unittest.mock import Mock, MagicMock, patch
-from datetime import datetime, timedelta
+from unittest.mock import Mock
 import time
 
 from gifts import vaaDecoder
-from gifts.common import Encoder, xmlUtilities, bulletin
+from gifts.common import Encoder, xmlUtilities
 
 
 class TestVAADecoderRealisticUsage:
@@ -326,8 +324,7 @@ class TestTPGModuleStructure:
     def test_tpg_imports(self):
         """Test key TPG imports"""
         from gifts.common.tpg import (
-            Error, Token, Lexer, Parser, 
-            LexicalError, SyntacticError, SemanticError, WrongToken
+            Error, Token, Lexer, Parser
         )
         assert Error is not None
         assert Token is not None

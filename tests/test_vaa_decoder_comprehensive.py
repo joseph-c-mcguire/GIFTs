@@ -1,6 +1,5 @@
 """Comprehensive tests for vaaDecoder module"""
-import pytest
-from gifts.vaaDecoder import Decoder, MissingAirSpaceWinds
+from gifts.vaaDecoder import Decoder
 
 
 class TestVaaDecoderBasic:
@@ -16,7 +15,7 @@ class TestVaaDecoderBasic:
         """Test decoding empty string"""
         decoder = Decoder()
         result = decoder("")
-        
+
         assert isinstance(result, dict)
         assert 'err_msg' in result
         assert 'VA ADVISORY line not found' in result['err_msg']
@@ -25,7 +24,7 @@ class TestVaaDecoderBasic:
         """Test decoding text without VA ADVISORY header"""
         decoder = Decoder()
         result = decoder("Some random text without the proper header")
-        
+
         assert isinstance(result, dict)
         assert 'err_msg' in result
 
@@ -33,14 +32,14 @@ class TestVaaDecoderBasic:
         """Test _is_a_test method"""
         decoder = Decoder()
         decoder.vaa = {}
-        
+
         # Not marked as test
         assert decoder._is_a_test() is False
-        
+
         # Marked as test
         decoder.vaa['status'] = 'TEST'
         assert decoder._is_a_test() is True
-        
+
         # Test status
         decoder.vaa['status'] = 'OTHER'
         assert decoder._is_a_test() is False
@@ -70,10 +69,10 @@ FCST VA CLD +12HR: 15/1200Z NOT AVBL
 FCST VA CLD +18HR: 15/1800Z NO VA EXP
 RMK: NONE
 NXT ADVISORY: NO FURTHER ADVISORIES"""
-        
+
         decoder = Decoder()
         result = decoder(exercise_vaa)
-        
+
         assert isinstance(result, dict)
         # Exercise messages should not produce err_msg
         assert 'err_msg' not in result or result.get('err_msg') is None
@@ -99,10 +98,10 @@ FCST VA CLD +12HR: 18/0630Z SFC/FL140 N1432 W09105 - N1428 W09053 - N1428 W09052
 FCST VA CLD +18HR: 18/1230Z SFC/FL140 N1432 W09105 - N1428 W09053 - N1428 W09053 - N1426 W09105 - N1432 W09105
 RMK: TEST MESSAGE
 NXT ADVISORY: WILL BE ISSUED BY 20251218/0115Z"""
-        
+
         decoder = Decoder()
         result = decoder(test_vaa)
-        
+
         assert isinstance(result, dict)
         # Test messages should not produce err_msg
         assert 'err_msg' not in result or result.get('err_msg') is None
@@ -131,10 +130,10 @@ FCST VA CLD +12HR: 18/0630Z SFC/FL140 N1432 W09105 - N1428 W09053 - N1428 W09052
 FCST VA CLD +18HR: 18/1230Z SFC/FL140 N1432 W09105 - N1428 W09053 - N1428 W09053 - N1426 W09105 - N1432 W09105
 RMK: VA NOT DETECTED ON STLT DUE TO WX CLDS IN SUMMIT AREA.
 NXT ADVISORY: WILL BE ISSUED BY 20251218/0115Z"""
-        
+
         decoder = Decoder()
         result = decoder(fuego_vaa)
-        
+
         assert isinstance(result, dict)
         assert 'volcanoName' in result
         assert 'FUEGO' in result['volcanoName']  # Includes volcano number in output
@@ -161,10 +160,10 @@ FCST VA CLD +12HR: 15/1452Z SFC/FL200 S0806 E11255
 FCST VA CLD +18HR: 16/0052Z SFC/FL200 S0806 E11255
 RMK: VOLCANIC ASH ADVISORY NOT ISSUED.
 NXT ADVISORY: WILL BE ISSUED BY 20200615/0852Z"""
-        
+
         decoder = Decoder()
         result = decoder(semeru_vaa)
-        
+
         assert isinstance(result, dict)
         assert 'volcanoName' in result
 
@@ -192,10 +191,10 @@ FCST VA CLD +12HR: 18/0630Z NOT PROVIDED
 FCST VA CLD +18HR: 18/1230Z NOT PROVIDED
 RMK: TEST
 NXT ADVISORY: WILL BE ISSUED BY 20251218/0115Z"""
-        
+
         decoder = Decoder()
         result = decoder(vaa_with_header)
-        
+
         assert isinstance(result, dict)
 
     def test_decoder_with_multiline_remarks(self):
@@ -220,10 +219,10 @@ RMK: MULTILINE REMARK LINE ONE
 LINE TWO OF REMARKS HERE
 LINE THREE CONTINUES HERE
 NXT ADVISORY: WILL BE ISSUED BY 20251218/0115Z"""
-        
+
         decoder = Decoder()
         result = decoder(vaa_multiline)
-        
+
         assert isinstance(result, dict)
         assert 'remarks' in result
 
@@ -251,10 +250,10 @@ FCST VA CLD +12HR: 18/0630Z FL100/FL200 N1432 W09105 - N1428 W09053
 FCST VA CLD +18HR: 18/1230Z FL100/FL200 N1432 W09105 - N1428 W09053
 RMK: TEST
 NXT ADVISORY: WILL BE ISSUED BY 20251218/0115Z"""
-        
+
         decoder = Decoder()
         result = decoder(vaa_clouds)
-        
+
         assert isinstance(result, dict)
         if 'clouds' in result:
             assert isinstance(result['clouds'], dict)
@@ -279,10 +278,10 @@ FCST VA CLD +12HR: 18/0630Z NO VA EXP
 FCST VA CLD +18HR: 18/1230Z NO VA EXP
 RMK: TEST
 NXT ADVISORY: WILL BE ISSUED BY 20251218/0115Z"""
-        
+
         decoder = Decoder()
         result = decoder(vaa_no_ash)
-        
+
         assert isinstance(result, dict)
 
     def test_decoder_not_available(self):
@@ -305,10 +304,10 @@ FCST VA CLD +12HR: 18/0630Z NOT AVBL
 FCST VA CLD +18HR: 18/1230Z NOT AVBL
 RMK: TEST
 NXT ADVISORY: WILL BE ISSUED BY 20251218/0115Z"""
-        
+
         decoder = Decoder()
         result = decoder(vaa_not_avbl)
-        
+
         assert isinstance(result, dict)
 
 
@@ -335,10 +334,10 @@ FCST VA CLD +12HR: 18/0630Z SFC/FL140 N1432 W09105 - N1428 W09053
 FCST VA CLD +18HR: 18/1230Z SFC/FL140 N1432 W09105 - N1428 W09053
 RMK: TEST
 NXT ADVISORY: WILL BE ISSUED BY 20251218/0115Z"""
-        
+
         decoder = Decoder()
         result = decoder(vaa_movement)
-        
+
         assert isinstance(result, dict)
 
     def test_decoder_movement_compound_direction(self):
@@ -361,10 +360,10 @@ FCST VA CLD +12HR: 18/0630Z SFC/FL140 N1432 W09105 - N1428 W09053
 FCST VA CLD +18HR: 18/1230Z SFC/FL140 N1432 W09105 - N1428 W09053
 RMK: TEST
 NXT ADVISORY: WILL BE ISSUED BY 20251218/0115Z"""
-        
+
         decoder = Decoder()
         result = decoder(vaa_nw)
-        
+
         assert isinstance(result, dict)
 
 
@@ -391,10 +390,10 @@ FCST VA CLD +12HR: 18/0630Z SFC/FL140 N1432 W09105 - N1428 W09053
 FCST VA CLD +18HR: 18/1230Z SFC/FL140 N1432 W09105 - N1428 W09053
 RMK: TEST
 NXT ADVISORY: WILL BE ISSUED BY 20251218/0115Z"""
-        
+
         decoder = Decoder()
         result = decoder(vaa_elevation)
-        
+
         assert isinstance(result, dict)
 
     def test_decoder_elevation_feet(self):
@@ -417,10 +416,10 @@ FCST VA CLD +12HR: 18/0630Z SFC/FL140 N1432 W09105 - N1428 W09053
 FCST VA CLD +18HR: 18/1230Z SFC/FL140 N1432 W09105 - N1428 W09053
 RMK: TEST
 NXT ADVISORY: WILL BE ISSUED BY 20251218/0115Z"""
-        
+
         decoder = Decoder()
         result = decoder(vaa_elevation)
-        
+
         assert isinstance(result, dict)
 
     def test_decoder_elevation_unknown(self):
@@ -443,10 +442,10 @@ FCST VA CLD +12HR: 18/0630Z NOT PROVIDED
 FCST VA CLD +18HR: 18/1230Z NOT PROVIDED
 RMK: TEST
 NXT ADVISORY: WILL BE ISSUED BY 20251218/0115Z"""
-        
+
         decoder = Decoder()
         result = decoder(vaa_elevation)
-        
+
         assert isinstance(result, dict)
 
 
@@ -473,10 +472,10 @@ FCST VA CLD +12HR: 18/0630Z SFC/FL140 N1432 W09105 - N1428 W09053
 FCST VA CLD +18HR: 18/1230Z SFC/FL140 N1432 W09105 - N1428 W09053
 RMK: TEST
 NXT ADVISORY: WILL BE ISSUED BY 20251218/0115Z"""
-        
+
         decoder = Decoder()
         result = decoder(vaa)
-        
+
         assert isinstance(result, dict)
         assert 'volcanoName' in result
 
@@ -500,10 +499,10 @@ FCST VA CLD +12HR: 18/0630Z SFC/FL140 N1432 W09105 - N1428 W09053
 FCST VA CLD +18HR: 18/1230Z SFC/FL140 N1432 W09105 - N1428 W09053
 RMK: TEST
 NXT ADVISORY: WILL BE ISSUED BY 20251218/0115Z"""
-        
+
         decoder = Decoder()
         result = decoder(vaa)
-        
+
         assert isinstance(result, dict)
         assert 'advisoryNumber' in result
 
@@ -527,10 +526,10 @@ FCST VA CLD +12HR: 18/0630Z SFC/FL140 N1432 W09105 - N1428 W09053
 FCST VA CLD +18HR: 18/1230Z SFC/FL140 N1432 W09105 - N1428 W09053
 RMK: TEST
 NXT ADVISORY: WILL BE ISSUED BY 20251218/0115Z"""
-        
+
         decoder = Decoder()
         result = decoder(vaa)
-        
+
         assert isinstance(result, dict)
 
 
@@ -557,10 +556,10 @@ FCST VA CLD +12HR: 18/0630Z NOT PROVIDED
 FCST VA CLD +18HR: 18/1230Z NOT PROVIDED
 RMK: TEST
 NXT ADVISORY: WILL BE ISSUED BY 20251218/0115Z"""
-        
+
         decoder = Decoder()
         result = decoder(vaa)
-        
+
         assert isinstance(result, dict)
 
     def test_decoder_special_characters_in_remarks(self):
@@ -583,10 +582,10 @@ FCST VA CLD +12HR: 18/0630Z NOT PROVIDED
 FCST VA CLD +18HR: 18/1230Z NOT PROVIDED
 RMK: TEST/REMARKS WITH SPECIAL CHARS: @#$%
 NXT ADVISORY: WILL BE ISSUED BY 20251218/0115Z"""
-        
+
         decoder = Decoder()
         result = decoder(vaa)
-        
+
         assert isinstance(result, dict)
 
     def test_decoder_long_latitude_longitude(self):
@@ -609,10 +608,10 @@ FCST VA CLD +12HR: 18/0630Z SFC/FL140 N1432 W09105 - N1428 W09053
 FCST VA CLD +18HR: 18/1230Z SFC/FL140 N1432 W09105 - N1428 W09053
 RMK: TEST
 NXT ADVISORY: WILL BE ISSUED BY 20251218/0115Z"""
-        
+
         decoder = Decoder()
         result = decoder(vaa)
-        
+
         assert isinstance(result, dict)
 
 
@@ -642,7 +641,7 @@ class TestVaaDecoderAttributes:
         decoder = Decoder()
         # Trigger call to initialize vaa dict
         decoder("")
-        
+
         # Check structure of vaa dict
         assert 'bbb' in decoder.vaa
         assert 'translationTime' in decoder.vaa

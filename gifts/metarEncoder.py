@@ -112,14 +112,14 @@ class Annex3(Common.Base):
             self.XMLDocument.set('translationCentreName', des.TranslationCentreName)
             self.XMLDocument.set('translationCentreDesignator', des.TranslationCentreDesignator)
             self.XMLDocument.set('translationTime', self.decodedTAC.get('translationTime', ''))
-            
+
             # Handle missing translator metadata (provide sensible defaults if not set)
             translated_bulletin_reception_time = self.decodedTAC.get('translatedBulletinReceptionTime')
             if translated_bulletin_reception_time is None:
                 # If not provided, use translation time as fallback
                 translated_bulletin_reception_time = self.decodedTAC.get('translationTime', '')
             self.XMLDocument.set('translatedBulletinReceptionTime', translated_bulletin_reception_time)
-            
+
             translated_bulletin_id = self.decodedTAC.get('translatedBulletinID')
             if translated_bulletin_id is None:
                 # Generate a default bulletin ID from ICAO code and timestamp

@@ -1,9 +1,8 @@
 """Comprehensive tests for TPG (Toy Parser Generator) module"""
-import pytest
-import sys
+
 import re
-from io import StringIO
-from unittest.mock import Mock, patch, MagicMock
+
+import pytest
 
 # Import TPG module
 from gifts.common import tpg
@@ -388,7 +387,7 @@ class TestParserSubclassing:
         """Test VerboseParser subclass"""
         class MyVerboseParser(tpg.VerboseParser):
             pass
-        
+
         # Should be able to create subclass
         assert issubclass(MyVerboseParser, tpg.VerboseParser)
 

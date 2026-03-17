@@ -3,16 +3,14 @@ Advanced TPG coverage - targeting specific line numbers in the missing list
 Lines to target: 58-59, 66-73, 188, 230-231, 250, 255, 260, 313-314, 326-329, 334, etc.
 """
 
-import pytest
 from gifts.common.tpg import (
-    Error, Token, Lexer, Parser, LexicalError, SyntacticError,
-    SemanticError, WrongToken, NamedGroupLexer
+    Error, Token, LexicalError, SyntacticError, NamedGroupLexer
 )
 
 
 class TestTPGLexerEdgeCases:
     """Test edge cases in lexer to hit uncovered lines"""
-    
+
     def test_lexer_empty_tokens_list(self):
         """Test lexer with no tokens defined"""
         lexer = NamedGroupLexer(True, 0)
@@ -24,7 +22,7 @@ class TestTPGLexerEdgeCases:
         except (ValueError, IndexError):
             # Empty pattern might raise
             pass
-    
+
     def test_lexer_many_tokens(self):
         """Test lexer with many token definitions"""
         lexer = NamedGroupLexer(True, 0)
@@ -32,7 +30,7 @@ class TestTPGLexerEdgeCases:
         for i in range(20):
             lexer.def_token(f'TOK{i}', f'tok{i}')
         assert len(lexer.tokens) == 20
-    
+
     def test_lexer_complex_regex(self):
         """Test lexer with complex regex patterns"""
         lexer = NamedGroupLexer(True, 0)
@@ -40,7 +38,7 @@ class TestTPGLexerEdgeCases:
         lexer.def_token('NUMBER', r'([0-9]+\.[0-9]*|[0-9]*\.[0-9]+|[0-9]+)')
         lexer.def_token('IDENT', r'[a-zA-Z_]\w*')
         assert len(lexer.tokens) == 3
-    
+
     def test_lexer_special_char_tokens(self):
         """Test lexer with special characters"""
         lexer = NamedGroupLexer(False, 0)  # No word boundary
@@ -49,23 +47,24 @@ class TestTPGLexerEdgeCases:
         lexer.def_token('STAR', r'\*')
         lexer.def_token('SLASH', r'\/')
         assert len(lexer.tokens) == 4
-    
+
     def test_lexer_token_with_none_value(self):
         """Test token with None as static value"""
         lexer = NamedGroupLexer(True, 0)
         lexer.def_token('NULL', r'null', None)
         val_func, is_real = lexer.tokens['NULL']
         assert is_real is True
-    
+
     def test_lexer_separator_with_callable(self):
         """Test separator with callable value function"""
         lexer = NamedGroupLexer(True, 0)
+
         def skip_value(text):
             return None
         lexer.def_separator('COMMENT', r'#.*$', skip_value)
         val_func, is_real = lexer.tokens['COMMENT']
         assert is_real is False
-    
+
     def test_lexer_build_from_list(self):
         """Test building lexer regex from token list"""
         lexer = NamedGroupLexer(True, 0)
@@ -80,7 +79,7 @@ class TestTPGLexerEdgeCases:
 
 class TestTPGErrorEdgeCases:
     """Test error handling edge cases"""
-    
+
     def test_error_zero_position(self):
         """Test error at position (0, 0)"""
         err = Error((0, 0), "Error at start")
@@ -88,25 +87,25 @@ class TestTPGErrorEdgeCases:
         assert err.column == 0
         err_str = str(err)
         assert len(err_str) > 0
-    
+
     def test_error_large_position(self):
         """Test error with very large position"""
         err = Error((999999, 999999), "Large position")
         assert err.line == 999999
         assert err.column == 999999
-    
+
     def test_error_subclass_message(self):
         """Test that error subclasses include correct class name"""
         lex_err = LexicalError((1, 1), "lex")
         assert "Lexical" in str(lex_err)
-        
+
         syn_err = SyntacticError((1, 1), "syn")
         assert "Syntactic" in str(syn_err)
 
 
 class TestTPGTokenExtended:
     """Extended token testing"""
-    
+
     def test_token_various_positions(self):
         """Test tokens at various positions"""
         positions = [
@@ -117,13 +116,13 @@ class TestTPGTokenExtended:
             tok = Token('TEST', 'test', 'value', line, col, line, col+4, col, col+4, 0)
             assert tok.line == line
             assert tok.column == col
-    
+
     def test_token_with_zero_positions(self):
         """Test token with zero positions"""
         tok = Token('ZERO', 'z', 'z', 0, 0, 0, 1, 0, 1, 0)
         assert tok.line == 0
         assert tok.column == 0
-    
+
     def test_token_large_coordinates(self):
         """Test token with large coordinates"""
         tok = Token('BIG', 'b', 'b', 10000, 10000, 10000, 10001, 10000, 10001, 0)
@@ -133,7 +132,7 @@ class TestTPGTokenExtended:
 
 class TestTPGLexerComplexScenarios:
     """Test complex lexer scenarios"""
-    
+
     def test_lexer_keyword_vs_identifier(self):
         """Test distinguishing keywords from identifiers"""
         lexer = NamedGroupLexer(True, 0)
@@ -143,7 +142,7 @@ class TestTPGLexerComplexScenarios:
         # General identifiers
         lexer.def_token('ID', r'[a-z]\w*')
         assert len(lexer.tokens) == 3
-    
+
     def test_lexer_operators(self):
         """Test various operator definitions"""
         lexer = NamedGroupLexer(False, 0)  # No word boundary for operators
@@ -159,7 +158,7 @@ class TestTPGLexerComplexScenarios:
         for name, pattern in operators:
             lexer.def_token(name, pattern)
         assert len(lexer.tokens) == len(operators)
-    
+
     def test_lexer_strings_and_numbers(self):
         """Test complex string and number patterns"""
         lexer = NamedGroupLexer(True, 0)
@@ -170,7 +169,7 @@ class TestTPGLexerComplexScenarios:
         lexer.def_token('FLOAT', r'[0-9]+\.[0-9]+')
         lexer.def_token('INT', r'[0-9]+')
         assert len(lexer.tokens) == 4
-    
+
     def test_lexer_multiline_comments(self):
         """Test multiline comment pattern"""
         lexer = NamedGroupLexer(True, 0)
@@ -181,21 +180,21 @@ class TestTPGLexerComplexScenarios:
 
 class TestTPGTokenValueFunctions:
     """Test token value computation functions"""
-    
+
     def test_token_value_uppercase(self):
         """Test token with uppercase conversion"""
         lexer = NamedGroupLexer(True, 0)
         lexer.def_token('UPPER', r'[a-z]+', lambda x: x.upper())
         value_fn, _ = lexer.tokens['UPPER']
         assert value_fn is not None
-    
+
     def test_token_value_integer(self):
         """Test token with integer conversion"""
         lexer = NamedGroupLexer(True, 0)
         lexer.def_token('INT', r'\d+', int)
         value_fn, _ = lexer.tokens['INT']
         assert value_fn is not None
-    
+
     def test_token_value_string_constant(self):
         """Test token with string constant value"""
         lexer = NamedGroupLexer(True, 0)
@@ -206,14 +205,14 @@ class TestTPGTokenValueFunctions:
 
 class TestTPGLexerRegexCompilation:
     """Test regex compilation in lexer"""
-    
+
     def test_lexer_compile_options_0(self):
         """Test lexer with compile options 0"""
         lexer = NamedGroupLexer(True, 0)
         lexer.def_token('WORD', r'[a-z]+')
         lexer.build()
         assert lexer.token_re is not None
-    
+
     def test_lexer_compile_with_flags(self):
         """Test lexer with regex flags"""
         import re
@@ -221,7 +220,7 @@ class TestTPGLexerRegexCompilation:
         lexer.def_token('WORD', r'[a-z]+')
         lexer.build()
         assert lexer.token_re is not None
-    
+
     def test_lexer_pattern_alternation(self):
         """Test that lexer creates alternation of patterns"""
         lexer = NamedGroupLexer(True, 0)
@@ -234,7 +233,7 @@ class TestTPGLexerRegexCompilation:
 
 class TestTPGLexerSeparatorHandling:
     """Test separator handling in lexer"""
-    
+
     def test_lexer_multiple_separators(self):
         """Test multiple separator types"""
         lexer = NamedGroupLexer(True, 0)
@@ -243,7 +242,7 @@ class TestTPGLexerSeparatorHandling:
         lexer.def_separator('TAB', r'\t+')
         lexer.def_separator('NEWLINE', r'\n')
         assert len(lexer.tokens) == 4
-    
+
     def test_lexer_comments_as_separator(self):
         """Test comments as separators (ignored)"""
         lexer = NamedGroupLexer(True, 0)
@@ -251,7 +250,7 @@ class TestTPGLexerSeparatorHandling:
         lexer.def_separator('COMMENT_LINE', r'//.*')
         val_fn, is_real = lexer.tokens['COMMENT_LINE']
         assert is_real is False
-    
+
     def test_lexer_whitespace_as_separator(self):
         """Test various whitespace patterns as separators"""
         lexer = NamedGroupLexer(True, 0)
@@ -263,26 +262,25 @@ class TestTPGLexerSeparatorHandling:
 
 class TestTPGLexerIterative:
     """Test iterative lexer use"""
-    
+
     def test_lexer_multiple_starts(self):
         """Test starting lexer multiple times"""
         lexer = NamedGroupLexer(True, 0)
         lexer.def_token('NUM', r'\d+')
-        
+
         for text in ["123", "456", "789"]:
             lexer.start(text)
             assert lexer.input == text
-    
+
     def test_lexer_context_preservation(self):
         """Test that lexer state is preserved correctly"""
         lexer = NamedGroupLexer(True, 0)
         lexer.def_token('WORD', r'[a-z]+')
         lexer.def_separator('SPACE', r'\s+')
-        
+
         lexer.start("hello world test")
         initial_input = lexer.input
-        initial_line = lexer.line
-        
+
         lexer.start("different input")
         # Should be reset for new input
         assert lexer.input == "different input"

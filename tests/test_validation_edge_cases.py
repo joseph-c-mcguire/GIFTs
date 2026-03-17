@@ -4,8 +4,7 @@ Additional tests to push checkGMLReferences and codeListsToSchematron above 90% 
 
 import os
 import sys
-import tempfile
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 import pytest
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -25,16 +24,16 @@ class TestCheckGMLReferencesEdgeCases:
     <element gml:id="uuid.test123">Test</element>
     <ref xlink:href="#uuid.test123"/>
 </root>'''
-        
+
         xml_file = tmp_path / "test.xml"
         xml_file.write_text(xml_content)
-        
+
         ignored_file = tmp_path / "ignoredURLs.txt"
         ignored_file.write_text("")
-        
+
         with patch('validation.checkGMLReferences.os.getcwd', return_value=str(tmp_path)):
             result = checkGMLReferences.check_GML_references(str(tmp_path), '3.0', internet=False)
-        
+
         # No external refs, should succeed
         assert result == 0
 
@@ -46,7 +45,7 @@ class TestCodeListsToSchematronEdgeCases:
         """Test run() when schema/schematron directories don't exist after creation attempts"""
         mock_args = Mock()
         mock_args.version = '3.0'
-        
+
         # Mock os.path.isdir to return False even after mkdir attempts
         with patch('validation.codeListsToSchematron.os.getcwd', return_value=str(tmp_path)):
             with patch('validation.codeListsToSchematron.os.path.exists', return_value=False):
@@ -61,13 +60,13 @@ class TestCodeListsToSchematronEdgeCases:
         """Test run() with Python 2 on Windows (symlink_ms)"""
         mock_args = Mock()
         mock_args.version = '3.0'
-        
+
         schemas_dir = tmp_path / "schemas" / "3.0"
         schemas_dir.mkdir(parents=True)
-        
+
         schematrons_dir = tmp_path / "schematrons" / "3.0"
         schematrons_dir.mkdir(parents=True)
-        
+
         # Create XSD with AerodromePresentOrForecastWeather vocabulary
         xsd_content = '''<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
@@ -79,15 +78,15 @@ class TestCodeListsToSchematronEdgeCases:
         </xs:annotation>
     </xs:complexType>
 </xs:schema>'''
-        
+
         (schemas_dir / "test.xsd").write_text(xsd_content)
         (schemas_dir / "iwxxm.xsd").write_text('<?xml version="1.0"?>\n<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"/>')
         (schematrons_dir / "iwxxm.sch").write_text('<?xml version="1.0"?>\n<schema/>')
-        
+
         # Create source RDF file
         src_rdf = schematrons_dir / "codes.wmo.int-49-2-AerodromePresentOrForecastWeather.rdf"
         src_rdf.write_text('<?xml version="1.0"?><rdf:RDF/>')
-        
+
         # Mock Python 2 on Windows
         with patch('validation.codeListsToSchematron.sys.version_info', Mock(major=2)):
             with patch('validation.codeListsToSchematron.os.name', 'nt'):
@@ -102,13 +101,13 @@ class TestCodeListsToSchematronEdgeCases:
         """Test run() when symlink creation raises an exception"""
         mock_args = Mock()
         mock_args.version = '3.0'
-        
+
         schemas_dir = tmp_path / "schemas" / "3.0"
         schemas_dir.mkdir(parents=True)
-        
+
         schematrons_dir = tmp_path / "schematrons" / "3.0"
         schematrons_dir.mkdir(parents=True)
-        
+
         # Create XSD with vocabulary
         xsd_content = '''<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
@@ -120,15 +119,15 @@ class TestCodeListsToSchematronEdgeCases:
         </xs:annotation>
     </xs:complexType>
 </xs:schema>'''
-        
+
         (schemas_dir / "test.xsd").write_text(xsd_content)
         (schemas_dir / "iwxxm.xsd").write_text('<?xml version="1.0"?>\n<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"/>')
         (schematrons_dir / "iwxxm.sch").write_text('<?xml version="1.0"?>\n<schema/>')
-        
+
         # Create source RDF file
         src_rdf = schematrons_dir / "codes.wmo.int-49-2-AerodromePresentOrForecastWeather.rdf"
         src_rdf.write_text('<?xml version="1.0"?><rdf:RDF/>')
-        
+
         with patch('validation.codeListsToSchematron.os.getcwd', return_value=str(tmp_path)):
             with patch('validation.codeListsToSchematron.download_codelist'):
                 with patch('validation.codeListsToSchematron.os.symlink', side_effect=Exception("Symlink failed")):

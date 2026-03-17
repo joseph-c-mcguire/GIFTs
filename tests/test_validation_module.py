@@ -1,10 +1,7 @@
 """Tests for the validation module components."""
 
 import os
-import sys
-import tempfile
 import pytest
-from pathlib import Path
 
 
 class TestValidationModuleStructure:
@@ -31,7 +28,7 @@ class TestValidationModuleStructure:
         """Test validator script can be executed."""
         val_dir = os.path.join(os.path.dirname(__file__), '..', 'validation')
         validator_file = os.path.join(val_dir, 'iwxxmValidator.py')
-        
+
         # Check if it's executable or has proper script header
         with open(validator_file, 'r') as f:
             first_line = f.readline()
@@ -66,7 +63,7 @@ class TestValidationSyntax:
         """Test validator script has valid Python syntax."""
         val_dir = os.path.join(os.path.dirname(__file__), '..', 'validation')
         validator_file = os.path.join(val_dir, 'iwxxmValidator.py')
-        
+
         with open(validator_file, 'r') as f:
             try:
                 compile(f.read(), validator_file, 'exec')
@@ -77,7 +74,7 @@ class TestValidationSyntax:
         """Test GML references checker has valid syntax."""
         val_dir = os.path.join(os.path.dirname(__file__), '..', 'validation')
         gml_file = os.path.join(val_dir, 'checkGMLReferences.py')
-        
+
         with open(gml_file, 'r') as f:
             try:
                 compile(f.read(), gml_file, 'exec')
@@ -88,7 +85,7 @@ class TestValidationSyntax:
         """Test codelists converter has valid syntax."""
         val_dir = os.path.join(os.path.dirname(__file__), '..', 'validation')
         codelist_file = os.path.join(val_dir, 'codeListsToSchematron.py')
-        
+
         with open(codelist_file, 'r') as f:
             try:
                 compile(f.read(), codelist_file, 'exec')
@@ -109,7 +106,7 @@ class TestValidatorFileStructure:
         """Test catalog template is XML and has placeholders."""
         val_dir = os.path.join(os.path.dirname(__file__), '..', 'validation')
         template_file = os.path.join(val_dir, 'catalog.template.xml')
-        
+
         with open(template_file, 'r') as f:
             content = f.read()
             assert '<?xml' in content or '<catalog' in content.lower(), \
@@ -137,7 +134,7 @@ class TestValidationModuleImports:
         """Test validator has main() function."""
         val_dir = os.path.join(os.path.dirname(__file__), '..', 'validation')
         validator_file = os.path.join(val_dir, 'iwxxmValidator.py')
-        
+
         with open(validator_file, 'r') as f:
             content = f.read()
             assert 'def main' in content, "iwxxmValidator should have main() function"
@@ -146,7 +143,7 @@ class TestValidationModuleImports:
         """Test validator uses argparse for CLI."""
         val_dir = os.path.join(os.path.dirname(__file__), '..', 'validation')
         validator_file = os.path.join(val_dir, 'iwxxmValidator.py')
-        
+
         with open(validator_file, 'r') as f:
             content = f.read()
             assert 'argparse' in content or 'ArgumentParser' in content, \
@@ -156,7 +153,7 @@ class TestValidationModuleImports:
         """Test GML checker has required functions."""
         val_dir = os.path.join(os.path.dirname(__file__), '..', 'validation')
         gml_file = os.path.join(val_dir, 'checkGMLReferences.py')
-        
+
         with open(gml_file, 'r') as f:
             content = f.read()
             assert 'def ' in content, "checkGMLReferences should have function definitions"
@@ -165,7 +162,7 @@ class TestValidationModuleImports:
         """Test codeListsToSchematron has run function."""
         val_dir = os.path.join(os.path.dirname(__file__), '..', 'validation')
         codelist_file = os.path.join(val_dir, 'codeListsToSchematron.py')
-        
+
         with open(codelist_file, 'r') as f:
             content = f.read()
             assert 'def run' in content or 'def ' in content, \
@@ -179,7 +176,7 @@ class TestValidationScriptEntry:
         """Test validator has __name__ == '__main__' block."""
         val_dir = os.path.join(os.path.dirname(__file__), '..', 'validation')
         validator_file = os.path.join(val_dir, 'iwxxmValidator.py')
-        
+
         with open(validator_file, 'r') as f:
             content = f.read()
             assert "__name__" in content and "__main__" in content, \
@@ -189,7 +186,7 @@ class TestValidationScriptEntry:
         """Test validator parses command line arguments."""
         val_dir = os.path.join(os.path.dirname(__file__), '..', 'validation')
         validator_file = os.path.join(val_dir, 'iwxxmValidator.py')
-        
+
         with open(validator_file, 'r') as f:
             content = f.read()
             assert 'parse_args' in content or 'add_argument' in content, \
@@ -203,7 +200,7 @@ class TestValidationArguments:
         """Test validator supports version argument."""
         val_dir = os.path.join(os.path.dirname(__file__), '..', 'validation')
         validator_file = os.path.join(val_dir, 'iwxxmValidator.py')
-        
+
         with open(validator_file, 'r') as f:
             content = f.read()
             assert 'version' in content.lower(), \
@@ -213,7 +210,7 @@ class TestValidationArguments:
         """Test validator supports fetch argument."""
         val_dir = os.path.join(os.path.dirname(__file__), '..', 'validation')
         validator_file = os.path.join(val_dir, 'iwxxmValidator.py')
-        
+
         with open(validator_file, 'r') as f:
             content = f.read()
             assert '--fetch' in content or "fetch" in content.lower(), \
@@ -223,7 +220,7 @@ class TestValidationArguments:
         """Test validator requires directory argument."""
         val_dir = os.path.join(os.path.dirname(__file__), '..', 'validation')
         validator_file = os.path.join(val_dir, 'iwxxmValidator.py')
-        
+
         with open(validator_file, 'r') as f:
             content = f.read()
             assert 'directory' in content, \
@@ -237,7 +234,7 @@ class TestValidationErrorHandling:
         """Test validator checks for bin directory."""
         val_dir = os.path.join(os.path.dirname(__file__), '..', 'validation')
         validator_file = os.path.join(val_dir, 'iwxxmValidator.py')
-        
+
         with open(validator_file, 'r') as f:
             content = f.read()
             assert 'bin' in content or 'crux' in content, \
@@ -247,7 +244,7 @@ class TestValidationErrorHandling:
         """Test validator checks for schema files."""
         val_dir = os.path.join(os.path.dirname(__file__), '..', 'validation')
         validator_file = os.path.join(val_dir, 'iwxxmValidator.py')
-        
+
         with open(validator_file, 'r') as f:
             content = f.read()
             assert 'schema' in content.lower() or 'xsd' in content.lower(), \
@@ -260,18 +257,18 @@ class TestValidationIntegration:
     def test_validation_directory_structure(self):
         """Test overall validation directory structure."""
         val_dir = os.path.join(os.path.dirname(__file__), '..', 'validation')
-        
+
         # Should have bin, externalSchemas, and Python files
         bin_exists = os.path.isdir(os.path.join(val_dir, 'bin'))
         schemas_exist = os.path.isdir(os.path.join(val_dir, 'externalSchemas'))
-        
+
         assert bin_exists, "validation/bin should exist"
         assert schemas_exist, "validation/externalSchemas should exist"
 
     def test_validation_files_readable(self):
         """Test all validation files are readable."""
         val_dir = os.path.join(os.path.dirname(__file__), '..', 'validation')
-        
+
         for filename in os.listdir(val_dir):
             if filename.endswith(('.py', '.xml', '.txt', '.md')):
                 filepath = os.path.join(val_dir, filename)

@@ -1,9 +1,6 @@
 """Comprehensive tests for xmlUtilities module - targeting uncovered lines"""
 
-import pytest
-import os
 import tempfile
-import math
 from gifts.common import xmlUtilities
 
 
@@ -18,7 +15,7 @@ class TestXmlUtilitiesCardinalConversions:
             'S': '180', 'SSW': '202.5', 'SW': '225', 'WSW': '247.5',
             'W': '270', 'WNW': '292.5', 'NW': '315', 'NNW': '337.5',
         }
-        
+
         for cardinal, degree_str in conversions.items():
             assert xmlUtilities.CardinalPtsToDegreesS[cardinal] == degree_str
 
@@ -30,7 +27,7 @@ class TestXmlUtilitiesCardinalConversions:
             'S': 180., 'SSW': 202.5, 'SW': 225., 'WSW': 247.5,
             'W': 270., 'WNW': 292.5, 'NW': 315., 'NNW': 337.5,
         }
-        
+
         for cardinal, degree_float in conversions.items():
             result = xmlUtilities.CardinalPtsToDegreesF[cardinal]
             assert isinstance(result, (float, int))
@@ -51,7 +48,6 @@ class TestFixDate:
 
     def test_fix_date_modifies_in_place(self):
         """Test fix_date modifies list in place and returns None"""
-        import time
         # mktime() requires (year, month, day, hour, min, sec, wday, yday, isdst)
         tms = [2024, 6, 15, 12, 0, 0, 0, 0, -1]
         result = xmlUtilities.fix_date(tms)
@@ -69,7 +65,6 @@ class TestFixDate:
 
     def test_fix_date_wraps_month_down(self):
         """Test fix_date wraps to previous month when day appears old"""
-        import time
         # Create a time tuple that will be > 3 days in the future when adjusted
         # This will trigger the month decrease
         tms = [2025, 1, 25, 12, 0, 0, 0, 0, -1]
@@ -80,7 +75,6 @@ class TestFixDate:
 
     def test_fix_date_wraps_month_up(self):
         """Test fix_date wraps to next month when day appears in future"""
-        import time
         # Create a time tuple that will be < -25 days (old) when adjusted
         tms = [2025, 1, 3, 12, 0, 0, 0, 0, -1]
         xmlUtilities.fix_date(tms)
@@ -386,7 +380,7 @@ class TestComplexNumberOperations:
             'S': '180', 'SSW': '202.5', 'SW': '225', 'WSW': '247.5',
             'W': '270', 'WNW': '292.5', 'NW': '315', 'NNW': '337.5',
         }
-        
+
         for cardinal, degree_str in conversions.items():
             assert xmlUtilities.CardinalPtsToDegreesS[cardinal] == degree_str
 
@@ -398,7 +392,7 @@ class TestComplexNumberOperations:
             'S': 180., 'SSW': 202.5, 'SW': 225., 'WSW': 247.5,
             'W': 270., 'WNW': 292.5, 'NW': 315., 'NNW': '337.5',
         }
-        
+
         for cardinal, degree_float in conversions.items():
             result = xmlUtilities.CardinalPtsToDegreesF[cardinal]
             assert isinstance(result, (float, int))
@@ -414,4 +408,3 @@ class TestComplexNumberOperations:
         """Test that all degree values are between 0-360"""
         for cardinal, degrees in xmlUtilities.CardinalPtsToDegreesF.items():
             assert 0 <= float(degrees) <= 360
-

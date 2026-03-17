@@ -23,6 +23,8 @@ from .common import Encoder as E
 #
 # Contact Info: Mark.Oberfield@gmail.com
 #
+
+
 class Encoder(E.Encoder):
     """Accepts Traditional Alphanumeric Code form of the Space Weather Advisory and generates equivalent IWXXM form.
 

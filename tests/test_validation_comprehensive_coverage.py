@@ -5,9 +5,7 @@ Focus on uncovered lines and branches to reach 90%+ coverage
 
 import os
 import sys
-import tempfile
-import shutil
-from unittest.mock import Mock, patch, MagicMock, mock_open, call
+from unittest.mock import Mock, patch, mock_open
 import pytest
 
 # Add parent directory to path
@@ -30,22 +28,22 @@ class TestCheckGMLReferencesInternet:
     <ref xlink:href="#uuid.test123"/>
     <external xlink:href="http://codes.wmo.int/common/nil/missing"/>
 </root>'''
-        
+
         xml_file = tmp_path / "test.xml"
         xml_file.write_text(xml_content)
-        
+
         # Create empty ignoredURLs.txt
         ignored_file = tmp_path / "ignoredURLs.txt"
         ignored_file.write_text("")
-        
+
         # Mock urlopen to return successful response
         mock_response = Mock()
         mock_response.getcode.return_value = 200
-        
+
         with patch('validation.checkGMLReferences.os.getcwd', return_value=str(tmp_path)):
             with patch('validation.checkGMLReferences.urlRequest.urlopen', return_value=mock_response):
                 result = checkGMLReferences.check_GML_references(str(tmp_path), '3.0', internet=True)
-        
+
         assert result == 0
 
     def test_check_GML_references_internet_mode_url_failure(self, tmp_path):
@@ -56,18 +54,18 @@ class TestCheckGMLReferencesInternet:
     <element gml:id="uuid.test123">Test</element>
     <external xlink:href="http://codes.wmo.int/bad/url/notfound"/>
 </root>'''
-        
+
         xml_file = tmp_path / "test.xml"
         xml_file.write_text(xml_content)
-        
+
         ignored_file = tmp_path / "ignoredURLs.txt"
         ignored_file.write_text("")
-        
+
         # Mock urlopen to raise exception
         with patch('validation.checkGMLReferences.os.getcwd', return_value=str(tmp_path)):
             with patch('validation.checkGMLReferences.urlRequest.urlopen', side_effect=Exception("URL not found")):
                 result = checkGMLReferences.check_GML_references(str(tmp_path), '3.0', internet=True)
-        
+
         assert result == 1
 
     def test_check_GML_references_internet_mode_bad_status_code(self, tmp_path):
@@ -78,23 +76,23 @@ class TestCheckGMLReferencesInternet:
     <element gml:id="uuid.test123">Test</element>
     <external xlink:href="http://codes.wmo.int/404/notfound"/>
 </root>'''
-        
+
         xml_file = tmp_path / "test.xml"
         xml_file.write_text(xml_content)
-        
+
         ignored_file = tmp_path / "ignoredURLs.txt"
         ignored_file.write_text("")
-        
+
         # Mock urlopen to raise exception for bad status code
         def bad_urlopen(url):
             resp = Mock()
             resp.getcode.return_value = 404
             raise Exception("Bad status code")
-        
+
         with patch('validation.checkGMLReferences.os.getcwd', return_value=str(tmp_path)):
             with patch('validation.checkGMLReferences.urlRequest.urlopen', side_effect=bad_urlopen):
                 result = checkGMLReferences.check_GML_references(str(tmp_path), '3.0', internet=True)
-        
+
         assert result == 1
 
     def test_check_GML_references_with_ignored_urls(self, tmp_path):
@@ -106,22 +104,22 @@ class TestCheckGMLReferencesInternet:
     <external xlink:href="http://ignored.example.com/concept/test"/>
     <external2 xlink:href="http://allowed.example.com/concept/test2"/>
 </root>'''
-        
+
         xml_file = tmp_path / "test.xml"
         xml_file.write_text(xml_content)
-        
+
         # Create ignoredURLs.txt with one ignored URL
         ignored_file = tmp_path / "ignoredURLs.txt"
         ignored_file.write_text("http://ignored.example.com\n# Comment line\n\n")
-        
+
         # Mock urlopen - should only be called for the non-ignored URL
         mock_response = Mock()
         mock_response.getcode.return_value = 200
-        
+
         with patch('validation.checkGMLReferences.os.getcwd', return_value=str(tmp_path)):
             with patch('validation.checkGMLReferences.urlRequest.urlopen', return_value=mock_response) as mock_url:
                 result = checkGMLReferences.check_GML_references(str(tmp_path), '3.0', internet=True)
-                
+
                 # Should only call urlopen once for the non-ignored URL
                 assert mock_url.call_count == 1
 
@@ -133,18 +131,18 @@ class TestCheckGMLReferencesInternet:
     <element gml:id="uuid.test123">Test</element>
     <external xlink:href="http://codes.wmo.int/common/nil/missing"/>
 </root>'''
-        
+
         xml_file = tmp_path / "test.xml"
         xml_file.write_text(xml_content)
-        
+
         ignored_file = tmp_path / "ignoredURLs.txt"
         ignored_file.write_text("")
-        
+
         # Must use absolute path from tmp_path root for schematrons
         # Create schematrons at top level of tmp_path
         schematrons_dir = tmp_path / "schematrons" / "3.0"
         schematrons_dir.mkdir(parents=True)
-        
+
         # Filename is constructed as schematrons/3.0/<url-parts>.rdf
         # For http://codes.wmo.int/common/nil/missing, it's codes.wmo.int-common-nil.rdf
         rdf_file = schematrons_dir / "codes.wmo.int-common-nil.rdf"
@@ -156,7 +154,7 @@ class TestCheckGMLReferencesInternet:
     </skos:Concept>
 </rdf:RDF>'''
         rdf_file.write_text(rdf_content)
-        
+
         # Change to the tmp directory so relative paths work
         import os
         old_cwd = os.getcwd()
@@ -165,7 +163,7 @@ class TestCheckGMLReferencesInternet:
             result = checkGMLReferences.check_GML_references(str(tmp_path), '3.0', internet=False)
         finally:
             os.chdir(old_cwd)
-        
+
         # Should succeed finding the concept in the RDF file
         assert result == 0
 
@@ -177,17 +175,17 @@ class TestCheckGMLReferencesInternet:
     <element gml:id="uuid.test123">Test</element>
     <external xlink:href="http://codes.wmo.int/common/nil/wrongurl"/>
 </root>'''
-        
+
         xml_file = tmp_path / "test.xml"
         xml_file.write_text(xml_content)
-        
+
         ignored_file = tmp_path / "ignoredURLs.txt"
         ignored_file.write_text("")
-        
+
         # Create schematrons directory and RDF file with different URL
         schematrons_dir = tmp_path / "schematrons" / "3.0"
         schematrons_dir.mkdir(parents=True)
-        
+
         rdf_file = schematrons_dir / "codes.wmo.int-common-nil.rdf"
         rdf_content = '''<?xml version="1.0" encoding="UTF-8"?>
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -197,10 +195,10 @@ class TestCheckGMLReferencesInternet:
     </skos:Concept>
 </rdf:RDF>'''
         rdf_file.write_text(rdf_content)
-        
+
         with patch('validation.checkGMLReferences.os.getcwd', return_value=str(tmp_path)):
             result = checkGMLReferences.check_GML_references(str(tmp_path), '3.0', internet=False)
-        
+
         assert result == 1
 
     def test_check_GML_references_offline_mode_missing_rdf_file(self, tmp_path):
@@ -211,16 +209,16 @@ class TestCheckGMLReferencesInternet:
     <element gml:id="uuid.test123">Test</element>
     <external xlink:href="http://codes.wmo.int/unknown/codelist/value"/>
 </root>'''
-        
+
         xml_file = tmp_path / "test.xml"
         xml_file.write_text(xml_content)
-        
+
         ignored_file = tmp_path / "ignoredURLs.txt"
         ignored_file.write_text("")
-        
+
         with patch('validation.checkGMLReferences.os.getcwd', return_value=str(tmp_path)):
             result = checkGMLReferences.check_GML_references(str(tmp_path), '3.0', internet=False)
-        
+
         assert result == 1
 
     def test_check_GML_references_offline_mode_concept_keyerror(self, tmp_path):
@@ -231,17 +229,17 @@ class TestCheckGMLReferencesInternet:
     <element gml:id="uuid.test123">Test</element>
     <external xlink:href="http://codes.wmo.int/common/nil/newconcept"/>
 </root>'''
-        
+
         xml_file = tmp_path / "test.xml"
         xml_file.write_text(xml_content)
-        
+
         ignored_file = tmp_path / "ignoredURLs.txt"
         ignored_file.write_text("")
-        
+
         # Create schematrons directory and RDF file with different concept
         schematrons_dir = tmp_path / "schematrons" / "3.0"
         schematrons_dir.mkdir(parents=True)
-        
+
         rdf_file = schematrons_dir / "codes.wmo.int-common-nil.rdf"
         rdf_content = '''<?xml version="1.0" encoding="UTF-8"?>
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -251,7 +249,7 @@ class TestCheckGMLReferencesInternet:
     </skos:Concept>
 </rdf:RDF>'''
         rdf_file.write_text(rdf_content)
-        
+
         # Change to the tmp directory so relative paths work
         import os
         old_cwd = os.getcwd()
@@ -260,7 +258,7 @@ class TestCheckGMLReferencesInternet:
             result = checkGMLReferences.check_GML_references(str(tmp_path), '3.0', internet=False)
         finally:
             os.chdir(old_cwd)
-        
+
         # The RDF file is loaded, WARNING is printed for missing concept, but returns 0
         # because the except KeyError catches it and only prints WARNING
         assert result == 0
@@ -273,7 +271,7 @@ class TestCodeListsToSchematronFetchAndDownload:
         """Test fetchLocalCopy successfully downloads files"""
         dest_dir = tmp_path / "schemas"
         dest_dir.mkdir()
-        
+
         # Mock HTML response with links to XSD files
         html_content = '''
         <html>
@@ -286,16 +284,16 @@ class TestCodeListsToSchematronFetchAndDownload:
         </body>
         </html>
         '''
-        
+
         # Mock responses
         mock_list_response = Mock()
         mock_list_response.status_code = 200
         mock_list_response.text = html_content
-        
+
         mock_file_response = Mock()
         mock_file_response.status_code = 200
         mock_file_response.text = '<?xml version="1.0"?><schema/>'
-        
+
         with patch('validation.codeListsToSchematron.requests.get') as mock_get:
             # First call returns HTML with file list
             # Subsequent calls return file contents
@@ -304,13 +302,13 @@ class TestCodeListsToSchematronFetchAndDownload:
                 mock_file_response,
                 mock_file_response
             ]
-            
+
             codeListsToSchematron.fetchLocalCopy(
                 'http://schemas.wmo.int/iwxxm/3.0',
                 'xsd',
                 str(dest_dir)
             )
-            
+
             # Should have called get 3 times: once for list, twice for XSD files
             assert mock_get.call_count == 3
 
@@ -318,10 +316,10 @@ class TestCodeListsToSchematronFetchAndDownload:
         """Test fetchLocalCopy handles bad HTTP status"""
         dest_dir = tmp_path / "schemas"
         dest_dir.mkdir()
-        
+
         mock_response = Mock()
         mock_response.status_code = 404
-        
+
         with patch('validation.codeListsToSchematron.requests.get', return_value=mock_response):
             # Should handle error gracefully
             codeListsToSchematron.fetchLocalCopy(
@@ -334,7 +332,7 @@ class TestCodeListsToSchematronFetchAndDownload:
         """Test fetchLocalCopy handles file download failures"""
         dest_dir = tmp_path / "schemas"
         dest_dir.mkdir()
-        
+
         html_content = '''
         <html>
         <body>
@@ -344,17 +342,17 @@ class TestCodeListsToSchematronFetchAndDownload:
         </body>
         </html>
         '''
-        
+
         mock_list_response = Mock()
         mock_list_response.status_code = 200
         mock_list_response.text = html_content
-        
+
         mock_file_response = Mock()
         mock_file_response.status_code = 500
-        
+
         with patch('validation.codeListsToSchematron.requests.get') as mock_get:
             mock_get.side_effect = [mock_list_response, mock_file_response]
-            
+
             codeListsToSchematron.fetchLocalCopy(
                 'http://schemas.wmo.int/iwxxm/3.0',
                 'xsd',
@@ -365,7 +363,7 @@ class TestCodeListsToSchematronFetchAndDownload:
         """Test fetchLocalCopy handles Unicode encoding issues"""
         dest_dir = tmp_path / "schemas"
         dest_dir.mkdir()
-        
+
         html_content = '''
         <html>
         <body>
@@ -375,16 +373,16 @@ class TestCodeListsToSchematronFetchAndDownload:
         </body>
         </html>
         '''
-        
+
         mock_list_response = Mock()
         mock_list_response.status_code = 200
         mock_list_response.text = html_content
-        
+
         # Create a mock response with text that would cause UnicodeEncodeError
         mock_file_response = Mock()
         mock_file_response.status_code = 200
         mock_file_response.text = 'Content with special chars: \u2603'  # Snowman character
-        
+
         with patch('validation.codeListsToSchematron.requests.get') as mock_get:
             with patch('builtins.open', mock_open()) as mock_file:
                 # Make write raise UnicodeEncodeError
@@ -392,9 +390,9 @@ class TestCodeListsToSchematronFetchAndDownload:
                     UnicodeEncodeError('ascii', '', 0, 1, 'error'),
                     None  # Second write succeeds with encoded bytes
                 ]
-                
+
                 mock_get.side_effect = [mock_list_response, mock_file_response]
-                
+
                 codeListsToSchematron.fetchLocalCopy(
                     'http://schemas.wmo.int/iwxxm/3.0',
                     'xsd',
@@ -406,7 +404,7 @@ class TestCodeListsToSchematronFetchAndDownload:
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.text = '<?xml version="1.0"?><rdf:RDF/>'
-        
+
         with patch('validation.codeListsToSchematron.requests.get', return_value=mock_response):
             with patch('validation.codeListsToSchematron.os.path.join', return_value=str(tmp_path / "test.rdf")):
                 with patch('builtins.open', mock_open()) as mock_file:
@@ -414,7 +412,7 @@ class TestCodeListsToSchematronFetchAndDownload:
                         'http://codes.wmo.int/common/nil',
                         str(tmp_path)
                     )
-                    
+
                     # Should have written the content
                     mock_file.assert_called_once()
 
@@ -422,7 +420,7 @@ class TestCodeListsToSchematronFetchAndDownload:
         """Test download_codelist handles download failures"""
         mock_response = Mock()
         mock_response.status_code = 404
-        
+
         with patch('validation.codeListsToSchematron.requests.get', return_value=mock_response):
             # Should handle error gracefully and print error message
             codeListsToSchematron.download_codelist(
@@ -435,7 +433,7 @@ class TestCodeListsToSchematronFetchAndDownload:
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.text = 'RDF content with unicode: \u2603'
-        
+
         with patch('validation.codeListsToSchematron.requests.get', return_value=mock_response):
             with patch('validation.codeListsToSchematron.os.path.join', return_value=str(tmp_path / "test.rdf")):
                 with patch('builtins.open', mock_open()) as mock_file:
@@ -444,7 +442,7 @@ class TestCodeListsToSchematronFetchAndDownload:
                         UnicodeEncodeError('ascii', '', 0, 1, 'error'),
                         None
                     ]
-                    
+
                     codeListsToSchematron.download_codelist(
                         'http://codes.wmo.int/common/nil',
                         str(tmp_path)
@@ -455,7 +453,7 @@ class TestCodeListsToSchematronFetchAndDownload:
         # Create mock args
         mock_args = Mock()
         mock_args.version = '3.0'
-        
+
         with patch('validation.codeListsToSchematron.os.getcwd', return_value=str(tmp_path)):
             with patch('validation.codeListsToSchematron.fetchLocalCopy') as mock_fetch:
                 with patch('validation.codeListsToSchematron.os.listdir', return_value=[]):
@@ -473,14 +471,14 @@ class TestCodeListsToSchematronFetchAndDownload:
         """Test run() creates symlink for AerodromePresentOrForecastWeather"""
         mock_args = Mock()
         mock_args.version = '3.0'
-        
+
         # Create necessary directories
         schemas_dir = tmp_path / "schemas" / "3.0"
         schemas_dir.mkdir(parents=True)
-        
+
         schematrons_dir = tmp_path / "schematrons" / "3.0"
         schematrons_dir.mkdir(parents=True)
-        
+
         # Create a test XSD file with vocabulary
         xsd_content = '''<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
@@ -492,19 +490,19 @@ class TestCodeListsToSchematronFetchAndDownload:
         </xs:annotation>
     </xs:complexType>
 </xs:schema>'''
-        
+
         xsd_file = schemas_dir / "test.xsd"
         xsd_file.write_text(xsd_content)
-        
+
         # Create source RDF file
         src_rdf = schematrons_dir / "codes.wmo.int-49-2-AerodromePresentOrForecastWeather.rdf"
         src_rdf.write_text('<?xml version="1.0"?><rdf:RDF/>')
-        
+
         with patch('validation.codeListsToSchematron.os.getcwd', return_value=str(tmp_path)):
             with patch('validation.codeListsToSchematron.download_codelist'):
                 with patch('validation.codeListsToSchematron.os.symlink') as mock_symlink:
                     codeListsToSchematron.run(mock_args)
-                    
+
                     # Should have attempted to create symlink
                     # (May or may not succeed depending on the test environment)
 
@@ -514,7 +512,7 @@ class TestCodeListsToSchematronFetchAndDownload:
             'http://codes.wmo.int/common/nil'
         )
         assert result == 'codes.wmo.int-common-nil.rdf'
-        
+
         result = codeListsToSchematron.parseLocalCodeListFile(
             'http://codes.wmo.int/49-2/AerodromeRecentWeather'
         )
@@ -528,13 +526,13 @@ class TestCodeListsToSchematronVocabularyParsing:
         """Test run() processes multiple XSD files with vocabularies"""
         mock_args = Mock()
         mock_args.version = '3.0'
-        
+
         schemas_dir = tmp_path / "schemas" / "3.0"
         schemas_dir.mkdir(parents=True)
-        
+
         schematrons_dir = tmp_path / "schematrons" / "3.0"
         schematrons_dir.mkdir(parents=True)
-        
+
         # Create multiple XSD files with different vocabularies - with proper namespace
         xsd1_content = '''<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
@@ -546,7 +544,7 @@ class TestCodeListsToSchematronVocabularyParsing:
         </xs:annotation>
     </xs:complexType>
 </xs:schema>'''
-        
+
         xsd2_content = '''<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <xs:complexType name="WeatherType">
@@ -557,23 +555,23 @@ class TestCodeListsToSchematronVocabularyParsing:
         </xs:annotation>
     </xs:complexType>
 </xs:schema>'''
-        
+
         (schemas_dir / "cloud.xsd").write_text(xsd1_content)
         (schemas_dir / "weather.xsd").write_text(xsd2_content)
-        
+
         # Create iwxxm.xsd and iwxxm.sch to prevent fetching - with proper namespace
         (schemas_dir / "iwxxm.xsd").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"/>')
         (schematrons_dir / "iwxxm.sch").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<schema xmlns="http://purl.oclc.org/dsdl/schematron"/>')
-        
+
         download_calls = []
-        
+
         def track_download(url, path):
             download_calls.append(url)
-        
+
         with patch('validation.codeListsToSchematron.os.getcwd', return_value=str(tmp_path)):
             with patch('validation.codeListsToSchematron.download_codelist', side_effect=track_download):
                 codeListsToSchematron.run(mock_args)
-                
+
                 # Should download both vocabularies plus common/nil
                 assert len(download_calls) >= 3
                 assert 'http://codes.wmo.int/common/nil' in download_calls

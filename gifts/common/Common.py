@@ -23,13 +23,14 @@ from . import xmlUtilities as deu
 # Contact Info: Mark.Oberfield@gmail.com
 #
 
+
 class Base(object):
 
     def __init__(self, version=None):
 
         if version:
             des.set_iwxxm_version(version)
-        
+
         self._re_ICAO_ID = re.compile(r'[A-Z]{4}')
         self._re_IATA_ID = re.compile(r'[A-Z]{3}')
         self._re_Alternate_ID = re.compile(r'[A-Z0-9]{3,6}')
